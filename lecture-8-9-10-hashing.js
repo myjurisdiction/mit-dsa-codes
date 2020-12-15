@@ -63,7 +63,7 @@ log(
 hash("hello there....");
  */
 
-function main() {
+function rabin_karp_search_algo() {
   const txt = "This is awesomem and beautiful",
     pat = "ful",
     q = 101;
@@ -109,4 +109,4 @@ function search(pat, txt, q) {
   }
 }
 
-log(main());
+log(rabin_karp_search_algo());
