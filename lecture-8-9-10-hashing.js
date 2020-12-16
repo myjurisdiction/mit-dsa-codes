@@ -32,13 +32,9 @@ function naive_string_matching(T, s) {
   return match_info;
 }
 
-log(
-  naive_string_matching("my name is name name name name abhisehk raj", "name")
-);
-
-/** STRING MATCHING THROUGH HASHING
- *
- */
+// log(
+//   naive_string_matching("my name is name name name name abhisehk raj", "name")
+// );
 
 /**
  * function hash(str) {
@@ -63,6 +59,11 @@ log(
 hash("hello there....");
  */
 
+/** STRING MATCHING THROUGH HASHING
+ *  RABIN KARB ALGORITHM
+ *  the best and worst case for this algorithm is O(m + n), m is pattern size and n is string size
+ */
+
 function rabin_karp_search_algo() {
   const txt = "This is awesomem and beautiful",
     pat = "ful",
@@ -75,8 +76,8 @@ function rabin_karp_search_algo() {
 
 function search(pat, txt, q) {
   const d = 256; // number of characters in the alphabet
-  let p = 0,
-    t = 0,
+  let p = 0, // hash value for pat
+    t = 0, // hash value for txt
     i,
     j;
   // h = pow(d, pat.length - 1) % q
@@ -109,4 +110,173 @@ function search(pat, txt, q) {
   }
 }
 
-log(rabin_karp_search_algo());
+// log(rabin_karp_search_algo());
+
+/**
+ * A DECENT HASH FUNCTION
+ */
+
+function hash_1(key, arrayLen) {
+  // arrayLen should be a prime for uniform distribution of keys in the buccket
+  let total = 0,
+    WEIRD_PRIME = 31;
+  for (let i = 0; i < Math.min(key.length, 100); i++)
+    total = (total * WEIRD_PRIME + (key.charCodeAt(i) - 96)) % arrayLen;
+
+  return total;
+}
+
+// log(hash_1("hello", 53));
+
+/**
+ * BUILDING OUR OWN HASH TABLE
+ */
+
+class Node {
+  constructor(key, value) {
+    Object.assign(this, { key, value, next: null });
+  }
+}
+
+class HashTable {
+  WEIRD_PRIME = 31;
+  SIZE = 0;
+
+  constructor(arraySize = 53) {
+    Object.assign(this, {
+      table: Array.from({ length: arraySize }, () => null),
+    });
+  }
+
+  get _table() {
+    return this.table;
+  }
+
+  add(key, value) {
+    let index = this.compute_hash(key),
+      head = this.table[index];
+
+    while (head) {
+      if (head.key === key) {
+        head.value = value;
+        return;
+      }
+
+      head = head.next;
+    }
+
+    const newNode = new Node(key, value);
+    head = this.table[index];
+    this.table[index] = newNode;
+    newNode.next = head;
+    this.SIZE++;
+
+    // this is done when the loadfactor is greater then 0.7
+
+    /**  THIS CODE NEEDS IMPROVEMENT.
+     * 
+     * if (this.SIZE / this.table.length >= 0.7) {
+      const temp = [...this.table];
+      this.table = Array.from({ length: temp.length * 2 }, () => null);
+      this.SIZE = 0;
+
+      for (let item of temp) {
+        while (item !== null) {
+          this.add(item.key, item.value);
+          item = item.next;
+        }
+      }
+    }
+     */
+  }
+
+  compute_hash(key) {
+    key = key.toLowerCase();
+    let hash_value = 0;
+    for (let i = 0; i < Math.min(key.length, 100); i++) {
+      hash_value =
+        (hash_value * this.WEIRD_PRIME + (key.charCodeAt(i) - 96)) %
+        this.table.length;
+    }
+
+    return hash_value;
+  }
+
+  get(key) {
+    const hash_code = this.compute_hash(key);
+    let head = this.table[hash_code];
+
+    while (head) {
+      if (head.key === key) return head.value;
+      head = head.next;
+    }
+
+    return null;
+  }
+}
+
+const instance = new HashTable(53);
+
+instance.add("name", "Abhishek");
+instance.add("age", 22);
+instance.add("friends", ["Ram", "shyam", "sita"]);
+
+log(instance);
+log(instance.get("friends"));
+
+
+/**
+ * A MODEL FOR LINKKED LIST
+ *
+ * class _Node {
+  constructor(val) {
+    Object.assign(this, { val, next: null });
+  }
+}
+
+class LinkedList {
+  constructor() {
+    Object.assign(this, { length: 0, head: null });
+  }
+
+  insert(val) {
+    // this is to insert at the end
+    const newNode = new _Node(val);
+    if (this.head === null) this.head = newNode;
+    else {
+      let pointer = this.head;
+      while (pointer.next) {
+        pointer = pointer.next;
+      }
+      pointer.next = newNode;
+      this.length++;
+    }
+  }
+
+  // insert at the begining
+
+  insert_at_begining(val) {
+    const newNode = new _Node(val);
+    if (this.head === null) {
+      this.head = newNode;
+    } else {
+      let temp = this.head;
+      this.head = newNode;
+      newNode.next = temp;
+    }
+
+    this.length++;
+  }
+}
+
+const ll = new LinkedList();
+
+const data = ["keshav", {}, [], "hello there", "last"];
+
+for (let el of data) {
+  ll.insert_at_begining(el);
+}
+
+log(ll);
+ *
+ */
